@@ -11,75 +11,46 @@ const articles = [
     { id: 9, title: "Articolo 9", description: "Descrizione breve dell'articolo 9." }
 ];
 
-// Variabili di controllo
-let currentIndex = 0;
-let articlesPerPage = 3;
 
 // Elementi del DOM
-let btnGenera = document.getElementById("btnGenera");
-let btnReset = document.getElementById("btnReset");
-let contenitoreCard = document.getElementById("contenitoreCard");
-let alertFiniti = document.getElementById("alertFiniti");
+let cardsContainer = document.querySelector(`#cardsContainer`);
+let loadBtn = document.querySelector(`#loadBtn`);
+let resetBtn = document.querySelector("#resetBtn");
+let endMessage = document.querySelector("#endMessage");
 
-// Funzione che crea una singola card
-function creaCard(articolo) {
-    let col = document.createElement("div");
-    col.className = "col-12 col-md-6 col-lg-4";
+// Variabili di Controllo
+ let currentIndex = 0;
+ let articlesPerRow = 3;
 
-    col.innerHTML = `
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">${articolo.title}</h5>
-                <p class="card-text">${articolo.description}</p>
-                <span class="badge bg-secondary">ID: ${articolo.id}</span>
-            </div>
-        </div>
-    `;
+ function createCard(article){
 
-    return col;
-}
+    let card = document.createElement('div');
+    card.classList.add('col-4', 'my-5');
+    card.innerHTML = `<div class="card card-body">
+    <h5 class="card-title">${article.title}</h5>
+    <p>${article.description}</p>
+    </div>`;
 
-// BOTTONE GENERA CARD
-btnGenera.addEventListener("click", function () {
+    cardsContainer.appendChild(card);
+ };
 
-    // Prendo i prossimi 3 articoli
-    let nextArticles = articles.slice(currentIndex, currentIndex + articlesPerPage);
+    loadBtn.addEventListener("click", ()=>{
+        let nextArticles = articles.slice(currentIndex, currentIndex + articlesPerRow);
+        currentIndex += nextArticles.length;
 
-    // Se non ci sono più articoli
-    if (nextArticles.length === 0) {
-        btnGenera.classList.add("d-none");          // nascondo il bottone
-        alertFiniti.classList.remove("d-none");     // mostro l'alert
-        return;
-    }
+        nextArticles.forEach(cards =>{
+            createCard(cards);
+        });
 
-    // Creo e aggiungo le card
-    for (let i = 0; i < nextArticles.length; i++) {
-        let card = creaCard(nextArticles[i]);
-        contenitoreCard.appendChild(card);
-    }
+        if(currentIndex >= articles.length){
+            endMessage.classList.remove("d-none");
+            loadBtn.classList.add("d-none");
+        }
+ });
 
-    // Avanzo l'indice
-    currentIndex = currentIndex + articlesPerPage;
-
-    // Se dopo questo click abbiamo finito gli articoli
-    if (currentIndex >= articles.length) {
-        btnGenera.classList.add("d-none");
-        alertFiniti.classList.remove("d-none");
-    }
-});
-
-// BOTTONE RESET
-btnReset.addEventListener("click", function () {
-
-    // Svuoto il contenitore delle card
-    contenitoreCard.innerHTML = "";
-
-    // Resetto l'indice
+ resetBtn.addEventListener("click", ()=> {
+    cardsContainer.innerHTML = ``;
+    endMessage.classList.add("d-none");
+    loadBtn.classList.remove("d-none");
     currentIndex = 0;
-
-    // Nascondo l'alert
-    alertFiniti.classList.add("d-none");
-
-    // Rifaccio apparire il bottone Genera
-    btnGenera.classList.remove("d-none");
-});
+ });
